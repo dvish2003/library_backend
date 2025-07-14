@@ -76,7 +76,58 @@ export const addBookBorrow = async (req: Request, res: Response, next: NextFunct
         });
     }
 }
-export const updateBookBorrow = async (req: Request, res: Response, next: NextFunction): Promise<any> => {}
+export const updateBookBorrow = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    const borrow = req.body;
+    console.log("Update book borrow function called with ID:", borrow._id);
+    try {
+        const existingBorrow = await BorrowBookModel.findById(borrow._id);
+        if (!existingBorrow) {
+            return res.status(404).json({
+                message: "Book borrow not found",
+                status: 404
+            });
+        }
+        const updatedBorrow = await BorrowBookModel.findByIdAndUpdate(
+            borrow._id,
+            borrow,
+            { new: true, runValidators: true }
+        );
+        if (!updatedBorrow) {
+            return res.status(400).json({
+                message: "Book borrow not updated",
+                status: 400
+            });
+        }
+        // If the status is changed to 'returned', update the book's available copies
+        if (updatedBorrow.status === "returned") {
+            const book = await BookModel.findById(updatedBorrow.bookId);
+            if (!book) {
+                return res.status(400).json({
+                    message: "Book not found",
+                    status: 400
+                });
+            }
+            book.availableCopies += 1; // Increment available copies
+            await book.save();
+
+            return res.status(200).json({
+                message: "Book borrow updated successfully",
+                bookBorrow: updatedBorrow,
+                status: 200
+            });
+        }
+
+    } catch (error) {
+        console.error("Error updating book borrow:", error);
+        next(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            status: 500
+        });
+    }
+
+
+}
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     console.log("Get all book borrow function called");
     try {

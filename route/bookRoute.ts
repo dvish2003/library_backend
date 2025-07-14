@@ -1,12 +1,10 @@
-/*
 import {Router} from "express";
-import router from "./userRoute";
-import {addNote, deleteNote, getAllNote, updateNote} from "../controller/NoteController";
-import {authenticate} from "../middleware/authenticate";
+import {addBook, deleteBook, getAllBook, getBook, updateBook} from "../controller/bookController";
 
 const bookRoute = Router();
-bookRoute.post("/addNote",authenticate,addNote);
-bookRoute.post("/updateNote",authenticate, updateNote);
-bookRoute.post("/deleteNote",authenticate, deleteNote);
-bookRoute.post("/getAll",authenticate, getAllNote);
-export default bookRoute;*/
+bookRoute.post("/addBook",addBook);
+bookRoute.put("/updateBook", updateBook);
+bookRoute.post("/deleteBook", deleteBook);
+bookRoute.post("/getAll", getAllBook);
+bookRoute.post("/getBook", getBook);
+export default bookRoute;

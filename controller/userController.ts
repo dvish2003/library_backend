@@ -13,6 +13,9 @@ interface VerifyCredentials {
 }
 export const addUser = async (req:Request, res:Response,next:NextFunction):Promise<any> => {
     const libraryUser = new LibraryMemberUserModel(req.body);
+    const id = req.body._id;
+    libraryUser.id = id;
+
 
     console.log("library User",libraryUser);
     const existingUser = await LibraryMemberUserModel.findOne({ email: libraryUser.email });
@@ -43,7 +46,7 @@ export const updateUser = async (req:Request, res:Response,next:NextFunction):Pr
   console.log("Update user...............................................................................................................")
 
    try{
-       console.log(req.body)
+       console.log("Update user",req.body)
        const email = req.body.email;
        const existingUser = await LibraryMemberUserModel.findOne({email})
        if (!existingUser) {
@@ -61,10 +64,12 @@ export const updateUser = async (req:Request, res:Response,next:NextFunction):Pr
                status: 400
            })
        }
-       return res.status(201).json({
-           message: "User updated successfully",
-           status: 201
-       })
+      if(await updateUser){
+          return res.status(201).json({
+              message: "User updated successfully",
+              status: 201
+          })
+      }
 
    }catch (e) {
          console.error("Error updating user:", e);
@@ -77,7 +82,8 @@ export const updateUser = async (req:Request, res:Response,next:NextFunction):Pr
    }
 }
 export const deleteUser = async (req:Request, res:Response,next:NextFunction):Promise<any> => {
-    const userId = req.body.id;
+   console.log("Delete user...............................................................................................................",req.body)
+    const userId = req.body._id;
     try {
         const user = await LibraryMemberUserModel.findByIdAndDelete(userId);
         if (!user) {

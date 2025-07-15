@@ -2,7 +2,7 @@ import {NextFunction, Request, Response} from "express";
 import {BorrowBookModel} from "../model/BookManage";
 import {BookModel} from "../model/Book";
 import {Receipt} from "../model/Receipt";
-import {mailReceipt} from "./mailSender";
+import {mailReceipt, overdueEmail} from "./mailSender";
 import {UserModel} from "../model/User";
 import {LibraryMemberUserModel} from "../model/LibraryMemberUser";
 
@@ -128,6 +128,58 @@ export const updateBookBorrow = async (req: Request, res: Response, next: NextFu
         });
     }
 
+
+}
+export const overDueSendEmail = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+    const borrowBook = req.body;
+    console.log("Overdue send email function called with ID:", borrowBook._id);
+    try {
+        const existingBorrow = await BorrowBookModel.findById(borrowBook._id);
+        if (!existingBorrow) {
+            console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww11111111111111111111111")
+
+            return res.status(404).json({
+                message: "Book borrow not found",
+                status: 404
+            });
+        }
+
+
+        const receipt: Receipt = {
+            referenceNumber: existingBorrow._id.toString(),
+            bookId: existingBorrow.bookId.toString(),
+            bookTitle: existingBorrow.bookTitle,
+            memberId: existingBorrow.memberId.toString(),
+            memberEmail: borrowBook.memberEmail,
+            borrowDate: existingBorrow.borrowDate,
+            returnDate: existingBorrow.returnDate,
+            payStatus: existingBorrow.payStatus,
+            payAmount: existingBorrow.payAmount
+        };
+
+        console.log("recepit",receipt)
+
+        console.log("Receipt to be sent:", receipt);
+        const emailStatus = await overdueEmail(receipt);
+        if (emailStatus === 200) {
+            return res.status(200).json({
+                message: "Overdue email sent successfully",
+                status: 200
+            });
+        } else {
+            return res.status(500).json({
+                message: "Failed to send overdue email",
+                status: 500
+            });
+        }
+    } catch (error) {
+        console.error("Error sending overdue email:", error);
+        next(error);
+        return res.status(500).json({
+            message: "Internal server error",
+            status: 500
+        });
+    }
 
 }
 export const getAll = async (req: Request, res: Response, next: NextFunction): Promise<any> => {

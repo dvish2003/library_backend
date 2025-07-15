@@ -215,6 +215,74 @@ export const mailReceipt = async (receiptModel: Receipt) => {
     }
 };
 
-export const overdueEmail = async (receiptModel: Receipt[]) => {
+export const overdueEmail = async (receiptModel: Receipt) => {
     console.log(receiptModel);
+    const ToEmail = receiptModel.memberEmail;
+    const referenceId = receiptModel.referenceNumber;
+    const bookId = receiptModel.bookId;
+    const bookTitle = receiptModel.bookTitle;
+    const memberId = receiptModel.memberId;
+    const borrowDate = receiptModel.borrowDate.toLocaleDateString();
+    const returnDate = receiptModel.returnDate.toLocaleDateString();
+    const payStatus = receiptModel.payStatus;
+    const payAmount = receiptModel.payAmount;
+
+    const transporter =nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.E_MAIL,
+            pass: process.env.PASSWORD
+        }
+    })
+
+    const mailOptions = {
+        from: process.env.E_MAIL,
+        to: ToEmail,
+        subject: `Overdue Notice - ${referenceId}`,
+        html: `
+        <html>
+        <head>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+                h2 { color: #d9534f; }
+                p { font-size: 16px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h2>Overdue Notice</h2>
+                <p>Dear User,</p>
+                <p>Your borrowed book is overdue. Please return it as soon as possible.</p>
+                <p><strong>Reference Number:</strong> ${referenceId}</p>
+                <p><strong>Book ID:</strong> ${bookId}</p>
+                <p><strong>Book Title:</strong> ${bookTitle}</p>
+                <p><strong>Member ID:</strong> ${memberId}</p>
+                <p><strong>Borrow Date:</strong> ${borrowDate}</p>
+                <p><strong>Return Date:</strong> ${returnDate}</p>
+                <p><strong>Payment Status:</strong> ${payStatus}</p>
+                <p><strong>Amount Due:</strong> $${payAmount.toFixed(2)}</p>
+                <p>Please contact us if you have any questions.</p>
+            </div>
+        </body>
+        </html>`
+    }
+
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        const code: number = 200;
+        const code_1: number = 404;
+
+        if (info) {
+            console.log("Overdue email sent: " + info.response);
+            return code;
+        } else {
+            return code_1;
+        }
+    } catch (error) {
+        console.error("Error sending overdue email:", error);
+        return 500;
+    }
+
 }

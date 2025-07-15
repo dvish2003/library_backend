@@ -214,3 +214,7 @@ export const mailReceipt = async (receiptModel: Receipt) => {
         return 500; // Internal Server Error
     }
 };
+
+export const overdueEmail = async (receiptModel: Receipt[]) => {
+    console.log(receiptModel);
+}

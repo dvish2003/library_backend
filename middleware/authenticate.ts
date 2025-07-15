@@ -1,6 +1,6 @@
   import jwt from 'jsonwebtoken';
   import { NextFunction, Request, Response } from 'express';
-  const SECRET =(process.env.SECRET);
+  const SECRET = 'ExiXGmnNx2pWE7eXj3sBtFabIjTpSZQ3';
 
 
   export const authenticate = (req:Request, res:Response , next:NextFunction)   => {
@@ -24,9 +24,10 @@
       }
 
       try{
-           const decorde = jwt.verify(token,SECRET)
-           (req as any).user = decorde;
-           next();
+          const decode = jwt.verify(token,SECRET);
+          (req as any).user = decode;
+          console.log("AuthenticatePassed")
+          next()
 
       }catch(err){
           return res.status(401).json({

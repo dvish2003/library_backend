@@ -253,7 +253,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
             });
         }
 
-        const token = jwt.sign({ email }, SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ email }, SECRET, { expiresIn: "3h" });
         return res.status(200).json({
             token,
             status: 200

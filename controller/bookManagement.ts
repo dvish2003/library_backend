@@ -78,6 +78,8 @@ export const addBookBorrow = async (req: Request, res: Response, next: NextFunct
 }
 export const updateBookBorrow = async (req: Request, res: Response, next: NextFunction): Promise<any> => {
     const borrow = req.body;
+    borrow.status = 'returned'
+    borrow.payStatus = 'paid'
     console.log("Update book borrow function called with ID:", borrow._id);
     try {
         const existingBorrow = await BorrowBookModel.findById(borrow._id);
